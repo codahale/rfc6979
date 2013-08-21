@@ -80,10 +80,10 @@ func bits2octets(in []byte, q *big.Int, qlen, rolen int) []byte {
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
 func generateSecret(q, x *big.Int, alg HashAlgorithm, hash []byte, test func(*big.Int) bool) {
-	// Step A
 	qlen := q.BitLen()
 	holen := alg().Size()
 	rolen := (qlen + 7) >> 3
+	bx := append(int2octets(x, rolen), bits2octets(hash, q, qlen, rolen)...)
 
 	// Step B
 	v := bytes.Repeat([]byte{0x01}, holen)
@@ -92,9 +92,6 @@ func generateSecret(q, x *big.Int, alg HashAlgorithm, hash []byte, test func(*bi
 	k := bytes.Repeat([]byte{0x00}, holen)
 
 	// Step D
-	b := int2octets(x, rolen)
-	bh := bits2octets(hash, q, qlen, rolen)
-	bx := append(b, bh...)
 
 	k = alg.mac(k, append(append(v, 0x00), bx...))
 
@@ -107,6 +104,7 @@ func generateSecret(q, x *big.Int, alg HashAlgorithm, hash []byte, test func(*bi
 	// Step G
 	v = alg.mac(k, v)
 
+	// Step H
 	for {
 		// Step H1
 		t := make([]byte, 0)
@@ -117,12 +115,12 @@ func generateSecret(q, x *big.Int, alg HashAlgorithm, hash []byte, test func(*bi
 			t = append(t, v...)
 		}
 
+		// Step H3
 		secret := bits2int(t, qlen)
 		if secret.Cmp(big.NewInt(1)) >= 0 && secret.Cmp(q) < 0 && test(secret) {
 			return
 		}
 		k = alg.mac(k, append(v, 0x00))
 		v = alg.mac(k, v)
-
 	}
 }
