@@ -25,6 +25,7 @@ func main() {
 	alg.Write([]byte("I am a potato."))
 	hash := alg.Sum(nil)
 
+	// Sign the message. You don't need a PRNG for this.
 	r, s, _ := rfc6979.SignECDSA(k, hash, sha512.New)
 	fmt.Printf("Signature: %X%X", r, s)
 }
