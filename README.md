@@ -1,7 +1,8 @@
 rfc6979
 =======
 
-A Go implementation of RFC 6979's deterministic DSA/ECDSA signature scheme.
+A Go implementation of [RFC 6979](https://tools.ietf.org/html/rfc6979)'s
+deterministic DSA/ECDSA signature scheme.
 
 ``` go
 package main

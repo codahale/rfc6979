@@ -12,6 +12,8 @@ Paraphrasing RFC6979:
 	access to a source of high-quality randomness.
 
 Provides functions similar to crypto/dsa and crypto/ecdsa.
+
+See https://tools.ietf.org/html/rfc6979 for technical details.
 */
 package rfc6979
 
