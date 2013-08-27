@@ -6,6 +6,7 @@ import (
 	"math/big"
 )
 
+// copied from crypto/ecdsa
 func hashToInt(hash []byte, c elliptic.Curve) *big.Int {
 	orderBits := c.Params().N.BitLen()
 	orderBytes := (orderBits + 7) / 8

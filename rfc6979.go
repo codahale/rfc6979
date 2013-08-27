@@ -27,12 +27,14 @@ import (
 // A function which provides a fresh Hash (e.g., sha256.New).
 type HashAlgorithm func() hash.Hash
 
+// digest returns a digest of the given message.
 func (alg HashAlgorithm) digest(m []byte) []byte {
 	h := alg()
 	h.Write(m)
 	return h.Sum(nil)
 }
 
+// mac returns an HMAC of the given key and message.
 func (alg HashAlgorithm) mac(k []byte, m []byte) []byte {
 	h := hmac.New(alg, k)
 	h.Write(m)
@@ -80,6 +82,8 @@ func bits2octets(in []byte, q *big.Int, qlen, rolen int) []byte {
 	return int2octets(z2, rolen)
 }
 
+var one = big.NewInt(1)
+
 // https://tools.ietf.org/html/rfc6979#section-3.2
 func generateSecret(q, x *big.Int, alg HashAlgorithm, hash []byte, test func(*big.Int) bool) {
 	qlen := q.BitLen()
@@ -94,7 +98,6 @@ func generateSecret(q, x *big.Int, alg HashAlgorithm, hash []byte, test func(*bi
 	k := bytes.Repeat([]byte{0x00}, holen)
 
 	// Step D
-
 	k = alg.mac(k, append(append(v, 0x00), bx...))
 
 	// Step E
@@ -119,7 +122,7 @@ func generateSecret(q, x *big.Int, alg HashAlgorithm, hash []byte, test func(*bi
 
 		// Step H3
 		secret := bits2int(t, qlen)
-		if secret.Cmp(big.NewInt(1)) >= 0 && secret.Cmp(q) < 0 && test(secret) {
+		if secret.Cmp(one) >= 0 && secret.Cmp(q) < 0 && test(secret) {
 			return
 		}
 		k = alg.mac(k, append(v, 0x00))
