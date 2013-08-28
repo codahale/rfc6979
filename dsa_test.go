@@ -230,7 +230,10 @@ func TestDSASignatures(t *testing.T) {
 func testDsaFixture(f *dsaFixture, t *testing.T) {
 	t.Logf("Testing %s", f.name)
 
-	digest := f.alg.digest([]byte(f.message))
+	h := f.alg()
+	h.Write([]byte(f.message))
+	digest := h.Sum(nil)
+
 	g := f.key.subgroup / 8
 	if len(digest) > g {
 		digest = digest[0:g]

@@ -27,13 +27,6 @@ import (
 // A function which provides a fresh Hash (e.g., sha256.New).
 type HashAlgorithm func() hash.Hash
 
-// digest returns a digest of the given message.
-func (alg HashAlgorithm) digest(m []byte) []byte {
-	h := alg()
-	h.Write(m)
-	return h.Sum(nil)
-}
-
 // mac returns an HMAC of the given key and message.
 func (alg HashAlgorithm) mac(k []byte, m []byte) []byte {
 	h := hmac.New(alg, k)
