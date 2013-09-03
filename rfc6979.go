@@ -26,10 +26,10 @@ import (
 type HashFunc func() hash.Hash
 
 // mac returns an HMAC of the given key and message.
-func (alg HashFunc) mac(k []byte, m []byte) []byte {
+func (alg HashFunc) mac(k, m, buf []byte) []byte {
 	h := hmac.New(alg, k)
 	h.Write(m)
-	return h.Sum(nil)
+	return h.Sum(buf[:0])
 }
 
 // https://tools.ietf.org/html/rfc6979#section-2.3.2
@@ -89,16 +89,16 @@ func generateSecret(q, x *big.Int, alg HashFunc, hash []byte, test func(*big.Int
 	k := bytes.Repeat([]byte{0x00}, holen)
 
 	// Step D
-	k = alg.mac(k, append(append(v, 0x00), bx...))
+	k = alg.mac(k, append(append(v, 0x00), bx...), k)
 
 	// Step E
-	v = alg.mac(k, v)
+	v = alg.mac(k, v, v)
 
 	// Step F
-	k = alg.mac(k, append(append(v, 0x01), bx...))
+	k = alg.mac(k, append(append(v, 0x01), bx...), k)
 
 	// Step G
-	v = alg.mac(k, v)
+	v = alg.mac(k, v, v)
 
 	// Step H
 	for {
@@ -107,7 +107,7 @@ func generateSecret(q, x *big.Int, alg HashFunc, hash []byte, test func(*big.Int
 
 		// Step H2
 		for len(t) < qlen/8 {
-			v = alg.mac(k, v)
+			v = alg.mac(k, v, v)
 			t = append(t, v...)
 		}
 
@@ -116,7 +116,7 @@ func generateSecret(q, x *big.Int, alg HashFunc, hash []byte, test func(*big.Int
 		if secret.Cmp(one) >= 0 && secret.Cmp(q) < 0 && test(secret) {
 			return
 		}
-		k = alg.mac(k, append(v, 0x00))
-		v = alg.mac(k, v)
+		k = alg.mac(k, append(v, 0x00), k)
+		v = alg.mac(k, v, v)
 	}
 }
