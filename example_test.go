@@ -1,12 +1,12 @@
 package rfc6979
 
 import (
-	"crypto/ecdsa"
-	"crypto/sha512"
-	"crypto/rand"
-	"crypto/elliptic"
 	"crypto/dsa"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/sha1"
+	"crypto/sha512"
 	"fmt"
 )
 
