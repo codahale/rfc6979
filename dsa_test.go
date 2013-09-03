@@ -13,7 +13,7 @@ import (
 type dsaFixture struct {
 	name    string
 	key     *dsaKey
-	alg     HashAlgorithm
+	alg     HashFunc
 	message string
 	r, s    string
 }

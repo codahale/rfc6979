@@ -13,7 +13,7 @@ import (
 type ecdsaFixture struct {
 	name    string
 	key     *ecdsaKey
-	alg     HashAlgorithm
+	alg     HashFunc
 	message string
 	r, s    string
 }

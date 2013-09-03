@@ -1,15 +1,13 @@
 /*
-Paraphrasing RFC6979:
+Package rfc6979 is an implementation of RFC 6979's deterministic DSA:
 
-	This package implements a deterministic digital signature generation
-	procedure.  Such signatures are compatible with standard Digital
-	Signature Algorithm (DSA) and Elliptic Curve Digital Signature
-	Algorithm (ECDSA) digital signatures and can be processed with
-	unmodified verifiers, which need not be aware of the procedure
-	described therein.  Deterministic signatures retain the cryptographic
-	security features associated with digital signatures but can be more
-	easily implemented in various environments, since they do not need
-	access to a source of high-quality randomness.
+	Such signatures are compatible with standard Digital Signature Algorithm
+	(DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA) digital
+	signatures and can be processed with unmodified verifiers, which need not be
+	aware of the procedure described therein.  Deterministic signatures retain
+	the cryptographic security features associated with digital signatures but
+	can be more easily implemented in various environments, since they do not
+	need access to a source of high-quality randomness.
 
 Provides functions similar to crypto/dsa and crypto/ecdsa.
 
@@ -24,11 +22,11 @@ import (
 	"math/big"
 )
 
-// A function which provides a fresh Hash (e.g., sha256.New).
-type HashAlgorithm func() hash.Hash
+// HashFunc is a function which provides a fresh Hash (e.g., sha256.New).
+type HashFunc func() hash.Hash
 
 // mac returns an HMAC of the given key and message.
-func (alg HashAlgorithm) mac(k []byte, m []byte) []byte {
+func (alg HashFunc) mac(k []byte, m []byte) []byte {
 	h := hmac.New(alg, k)
 	h.Write(m)
 	return h.Sum(nil)
@@ -78,7 +76,7 @@ func bits2octets(in []byte, q *big.Int, qlen, rolen int) []byte {
 var one = big.NewInt(1)
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
-func generateSecret(q, x *big.Int, alg HashAlgorithm, hash []byte, test func(*big.Int) bool) {
+func generateSecret(q, x *big.Int, alg HashFunc, hash []byte, test func(*big.Int) bool) {
 	qlen := q.BitLen()
 	holen := alg().Size()
 	rolen := (qlen + 7) >> 3
