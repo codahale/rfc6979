@@ -1,1 +1,7 @@
 language: go
+notifications:
+  # See http://about.travis-ci.org/docs/user/build-configuration/ to learn more
+  # about configuring notification recipients and more.
+  email:
+    recipients:
+      - coda.hale@gmail.com
