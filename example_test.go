@@ -16,7 +16,6 @@ func ExampleSignECDSA() {
 	// Generate a key pair.
 	// You need a high-quality PRNG for this.
 	k, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
-
 	if err != nil {
 		fmt.Println(err)
 		return
