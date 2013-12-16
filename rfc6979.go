@@ -1,5 +1,5 @@
 /*
-Package rfc6979 is an implementation of RFC 6979's deterministic DSA:
+Package rfc6979 is an implementation of RFC 6979's deterministic DSA.
 
 	Such signatures are compatible with standard Digital Signature Algorithm
 	(DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA) digital
@@ -9,9 +9,9 @@ Package rfc6979 is an implementation of RFC 6979's deterministic DSA:
 	can be more easily implemented in various environments, since they do not
 	need access to a source of high-quality randomness.
 
-Provides functions similar to crypto/dsa and crypto/ecdsa.
+(https://tools.ietf.org/html/rfc6979)
 
-See https://tools.ietf.org/html/rfc6979 for technical details.
+Provides functions similar to crypto/dsa and crypto/ecdsa.
 */
 package rfc6979
 
