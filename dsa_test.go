@@ -1,4 +1,4 @@
-package rfc6979
+package rfc6979_test
 
 import (
 	"crypto/dsa"
@@ -6,14 +6,17 @@ import (
 	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/hex"
+	"hash"
 	"math/big"
 	"testing"
+
+	"github.com/codahale/rfc6979"
 )
 
 type dsaFixture struct {
 	name    string
 	key     *dsaKey
-	alg     HashFunc
+	alg     func() hash.Hash
 	message string
 	r, s    string
 }
@@ -239,7 +242,7 @@ func testDsaFixture(f *dsaFixture, t *testing.T) {
 		digest = digest[0:g]
 	}
 
-	r, s, err := SignDSA(f.key.key, digest, f.alg)
+	r, s, err := rfc6979.SignDSA(f.key.key, digest, f.alg)
 	if err != nil {
 		t.Error(err)
 		return

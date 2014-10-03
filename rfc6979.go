@@ -22,11 +22,8 @@ import (
 	"math/big"
 )
 
-// HashFunc is a function which provides a fresh Hash (e.g., sha256.New).
-type HashFunc func() hash.Hash
-
 // mac returns an HMAC of the given key and message.
-func (alg HashFunc) mac(k, m, buf []byte) []byte {
+func mac(alg func() hash.Hash, k, m, buf []byte) []byte {
 	h := hmac.New(alg, k)
 	h.Write(m)
 	return h.Sum(buf[:0])
@@ -76,7 +73,7 @@ func bits2octets(in []byte, q *big.Int, qlen, rolen int) []byte {
 var one = big.NewInt(1)
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
-func generateSecret(q, x *big.Int, alg HashFunc, hash []byte, test func(*big.Int) bool) {
+func generateSecret(q, x *big.Int, alg func() hash.Hash, hash []byte, test func(*big.Int) bool) {
 	qlen := q.BitLen()
 	holen := alg().Size()
 	rolen := (qlen + 7) >> 3
@@ -89,25 +86,25 @@ func generateSecret(q, x *big.Int, alg HashFunc, hash []byte, test func(*big.Int
 	k := bytes.Repeat([]byte{0x00}, holen)
 
 	// Step D
-	k = alg.mac(k, append(append(v, 0x00), bx...), k)
+	k = mac(alg, k, append(append(v, 0x00), bx...), k)
 
 	// Step E
-	v = alg.mac(k, v, v)
+	v = mac(alg, k, v, v)
 
 	// Step F
-	k = alg.mac(k, append(append(v, 0x01), bx...), k)
+	k = mac(alg, k, append(append(v, 0x01), bx...), k)
 
 	// Step G
-	v = alg.mac(k, v, v)
+	v = mac(alg, k, v, v)
 
 	// Step H
 	for {
 		// Step H1
-		t := make([]byte, 0)
+		var t []byte
 
 		// Step H2
 		for len(t) < qlen/8 {
-			v = alg.mac(k, v, v)
+			v = mac(alg, k, v, v)
 			t = append(t, v...)
 		}
 
@@ -116,7 +113,7 @@ func generateSecret(q, x *big.Int, alg HashFunc, hash []byte, test func(*big.Int
 		if secret.Cmp(one) >= 0 && secret.Cmp(q) < 0 && test(secret) {
 			return
 		}
-		k = alg.mac(k, append(v, 0x00), k)
-		v = alg.mac(k, v, v)
+		k = mac(alg, k, append(v, 0x00), k)
+		v = mac(alg, k, v, v)
 	}
 }

@@ -1,4 +1,4 @@
-package rfc6979
+package rfc6979_test
 
 import (
 	"crypto/ecdsa"
@@ -6,14 +6,17 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
+	"hash"
 	"math/big"
 	"testing"
+
+	"github.com/codahale/rfc6979"
 )
 
 type ecdsaFixture struct {
 	name    string
 	key     *ecdsaKey
-	alg     HashFunc
+	alg     func() hash.Hash
 	message string
 	r, s    string
 }
@@ -425,7 +428,7 @@ func testEcsaFixture(f *ecdsaFixture, t *testing.T) {
 		digest = digest[0:g]
 	}
 
-	r, s, err := SignECDSA(f.key.key, digest, f.alg)
+	r, s, err := rfc6979.SignECDSA(f.key.key, digest, f.alg)
 	if err != nil {
 		t.Error(err)
 		return

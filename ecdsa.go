@@ -3,24 +3,9 @@ package rfc6979
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"hash"
 	"math/big"
 )
-
-// copied from crypto/ecdsa
-func hashToInt(hash []byte, c elliptic.Curve) *big.Int {
-	orderBits := c.Params().N.BitLen()
-	orderBytes := (orderBits + 7) / 8
-	if len(hash) > orderBytes {
-		hash = hash[:orderBytes]
-	}
-
-	ret := new(big.Int).SetBytes(hash)
-	excess := len(hash)*8 - orderBits
-	if excess > 0 {
-		ret.Rsh(ret, uint(excess))
-	}
-	return ret
-}
 
 // SignECDSA signs an arbitrary length hash (which should be the result of
 // hashing a larger message) using the private key, priv. It returns the
@@ -29,7 +14,7 @@ func hashToInt(hash []byte, c elliptic.Curve) *big.Int {
 // Note that FIPS 186-3 section 4.6 specifies that the hash should be truncated
 // to the byte-length of the subgroup. This function does not perform that
 // truncation itself.
-func SignECDSA(priv *ecdsa.PrivateKey, hash []byte, alg HashFunc) (r, s *big.Int, err error) {
+func SignECDSA(priv *ecdsa.PrivateKey, hash []byte, alg func() hash.Hash) (r, s *big.Int, err error) {
 	c := priv.PublicKey.Curve
 	N := c.Params().N
 
@@ -52,4 +37,20 @@ func SignECDSA(priv *ecdsa.PrivateKey, hash []byte, alg HashFunc) (r, s *big.Int
 	})
 
 	return
+}
+
+// copied from crypto/ecdsa
+func hashToInt(hash []byte, c elliptic.Curve) *big.Int {
+	orderBits := c.Params().N.BitLen()
+	orderBytes := (orderBits + 7) / 8
+	if len(hash) > orderBytes {
+		hash = hash[:orderBytes]
+	}
+
+	ret := new(big.Int).SetBytes(hash)
+	excess := len(hash)*8 - orderBits
+	if excess > 0 {
+		ret.Rsh(ret, uint(excess))
+	}
+	return ret
 }
